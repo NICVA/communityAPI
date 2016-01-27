@@ -1,0 +1,32 @@
+/* Add your own CSS if you like */
+.line-separator{
+    text-align: center;
+    background: transparent url(../img/line-divider.png) no-repeat bottom center;
+    padding: 0 0 20px 0;
+    margin: 30px 0 30px 0;
+    color: #8c8c8c;
+}
+
+/*
+ * http://docs.angularjs.org/api/ng/directive/ngShow#usage_animations
+ */
+.list .item.item-accordion {
+    line-height: 38px;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition: 0.09s all linear;
+}
+.list .item.item-accordion.ng-hide {
+    line-height: 0px;
+}
+.list .item.item-accordion.ng-hide-add,
+.list .item.item-accordion.ng-hide-remove {
+    display: block !important;
+}
+
+.angular-google-map-container { height: 200px; }
+
+div.title {
+    left: 0 !important;
+    right: 0 !important;
+}
