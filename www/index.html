@@ -65,6 +65,27 @@
             </div>
             
             <div class="item item-divider">
+                Get organisation by name
+            </div>
+            
+            <div ng-controller="GetOrganisationCtrl" style="width: 80%; margin: auto; margin-bottom: 20px;" class="padding">
+                <div class="card">
+                    <div class="item item-text-wrap">
+                        Enter the name of the organisation you wish to retrieve
+                    </div>
+                </div>
+
+                <div class="item item-input-inset">
+                    <label class="item-input-wrapper" style="background: white;">
+                        <input type="text" placeholder='E.g., "174 Trust"' ng-model="organisationName">
+                    </label>
+                    <button class="button button-small button-positive" ng-click="getOrganisation(organisationName)">
+                        Submit
+                    </button>
+                </div>
+            </div>
+            
+            <div class="item item-divider">
                 Get organisations
             </div>
             
@@ -102,11 +123,20 @@
             <div ng-controller="GetOrganisationsByTaxonomyCtrl" style="width: 80%; margin: auto;" class="padding">
                 <div class="card">
                     <div class="item item-text-wrap">
-                        Enter a taxonomy term, then select its taxonomy type
+                        Select a taxonomy type, then enter a search term
                     </div>
                 </div>
+
+                <div class="item item-divider">
+                    Select the taxonomy type
+                </div>
+                <ion-radio ng-repeat="item in taxonomyTypes"
+                        ng-value="item.value"
+                        ng-model="data.selectedType">
+                        {{ item.text }}
+                </ion-radio>
                 
-                <div class="list">
+                <div class="list" style="margin-top: 20px;">
                     <div class="item item-input-inset">
                         <label class="item-input-wrapper" style="background: white;">
                             <input type="text" placeholder="Taxonomy term" ng-model="taxonomyTerm">
@@ -116,16 +146,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <div class="item item-divider">
-                    Select the taxonomy type
-                </div>
-        
-                <ion-radio ng-repeat="item in taxonomyTypes"
-                        ng-value="item.value"
-                        ng-model="data.selectedType">
-                        {{ item.text }}
-                </ion-radio>
                 
                 <div class="line-separator"></div>
                 
