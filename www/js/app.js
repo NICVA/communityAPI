@@ -5,6 +5,10 @@
 // the 2nd parameter is an array of 'requires'
 var app = angular.module('starter', ['ionic', 'uiGmapgoogle-maps'])
 
+app.config(function($ionicConfigProvider) {
+  $ionicConfigProvider.navBar.alignTitle('center');
+});
+
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     if(window.cordova && window.cordova.plugins.Keyboard) {
@@ -29,17 +33,16 @@ app.service('service', function () {
     return {};
 })
 
-app.service('GetTermService', function($http) {
+app.service('GetTermService', function($http, service) {
     this.getData = function(uri) {
-      return $http.get(uri + '?access_token=06f56b2135780a41a8e669188b18ea1b81d7a968');
+      return $http.get(uri + '?access_token=' + service.accessToken + '');
     };
 });
 
 /* Controllers */
 
 app.controller('AuthoriseCtrl', function($scope, $http, service) {
-  
-    // API key functionality
+
     $scope.authorise = function(apiKey) {
         if (apiKey.length == 40) {
             service.accessToken = apiKey;
@@ -53,38 +56,6 @@ app.controller('AuthoriseCtrl', function($scope, $http, service) {
             angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key</p>');
         }
     }
-  
-    // Access token functionality
-    /*$scope.authorise = function(user) {
-    $http({
-            method: 'POST',
-            url: 'http://dev-d7nicva-api.pantheon.io/oauth2/token',
-            data: {
-                grant_type: 'password',
-                client_id: 'lociid_app',
-                username: user.username,
-                password: user.password
-            },
-            headers: {
-                'Content-Type': 'application/json' // Supposedly $http defaults the Content-Type to JSON, so this header may not be required.
-            }
-        }).then(function successCallback(response) {
-            // this callback will be called asynchronously
-            // when the response is available
-            
-            service.accessToken = response.data.access_token;
-            angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-checkmark-circled"></i> Authorisation successful!')
-            .css({"background-color": "#3c763d", "color": "white"});
-            angular.element(document.querySelector(".authoriseMessageBody")).html(response.data.access_token + '</p><p>Refresh Token: ' + response.data.refresh_token + '</p>');
-        }, function errorCallback(response) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            
-            angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> Authorisation unsuccessful')
-            .css({"background-color": "#a94442", "color": "white"});
-            angular.element(document.querySelector(".authoriseMessageBody")).html('<p>' + response.data.error_description + '</p>');
-        });
-    }*/
 })
 
 app.controller('GetOrganisationsCtrl', function($scope, $http, service) {
@@ -94,36 +65,15 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service) {
             method: 'GET',
             url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=' + numOfOrgs + '&access_token=' + service.accessToken + '',
             headers: {
-                'Content-Type': 'application/json' // Supposedly $http defaults the Content-Type to JSON, so this header may not be required.
+                'Content-Type': 'application/json' // $http defaults the Content-Type to JSON, so this header isn't necessarily required.
             }
     }).then(function successCallback(response) {
-        /*for(var i=0; i < response.data.length; i++) {
-            $scope.organisations.push({
-                title: response.data[i].label
-            });
-        }*/
         $scope.organisations = [];
         angular.forEach(response.data, function(item) {
             $scope.organisations.push({
                 title: item.label
             });
         });
-
-        // Dropdown functionality
-        /*
-         * if given group is the selected group, deselect it
-         * else, select the given group
-         */
-        /*$scope.toggleGroup = function(group) {
-            if ($scope.isGroupShown(group)) {
-            $scope.shownGroup = null;
-            } else {
-            $scope.shownGroup = group;
-            }
-        };
-        $scope.isGroupShown = function(group) {
-            return $scope.shownGroup === group;
-        };*/
     }, function errorCallback(response) {
         
     });
@@ -132,12 +82,12 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service) {
 
 app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicModal, GetTermService) {
   
-  $ionicModal.fromTemplateUrl('my-modal.html', {
+    $ionicModal.fromTemplateUrl('my-modal.html', {
         scope: $scope,
         animation: 'slide-in-up'
     }).then(function(modal) {
-      $scope.modal = modal;
-   });
+        $scope.modal = modal;
+    });
         
     $scope.openModal = function(lat, lon, title) {
         $scope.modal.show();
@@ -149,8 +99,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             zoom: 14
         };
         
-        $scope.marker = 
-            {
+        $scope.marker = {
             "id": "0",
             "coords": {
                 "latitude": lat,
@@ -159,29 +108,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             "window": {
                 "title": title
             }
-            };
-  
-        // Old Google Maps code
-        /*$scope.initialise = function() {
-            var myLatlng = new google.maps.LatLng(lat, lon);
-            var mapOptions = {
-                center: myLatlng,
-                zoom: 14,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            };
-            
-            var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-                
-            var marker = new google.maps.Marker({
-                position: myLatlng,
-                map: map,
-                title: 'Hello World!'
-            });
-
-            $scope.map = map;
         };
-        
-        google.maps.event.addDomListener(document.getElementById("map"), 'load', $scope.initialise());*/
     };
         
     $scope.closeModal = function() {
@@ -203,12 +130,12 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         // Execute action
     });
   
-  $scope.getOrganisation = function(organisationName) {
+    $scope.getOrganisation = function(organisationName) {
       $http({
             method: 'GET',
             url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?parameters[label]=' + organisationName + '&access_token=' + service.accessToken + '',
             headers: {
-                'Content-Type': 'application/json' // Supposedly $http defaults the Content-Type to JSON, so this header may not be required.
+                'Content-Type': 'application/json'
             }
     }).then(function successCallback(response) {
         var orgObject = response.data[0];
@@ -255,7 +182,36 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
   }
 })
 
-app.controller('CreateOrganisationCtrl', function($scope, $http, service) {
+app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service) {
+    $scope.taxonomyTypes = [
+        { text: "Council", value: "council" },
+        { text: "Constituency", value: "constituency" },
+        { text: "Electoral Area", value: "electoral_area" },
+        { text: "Ward", value: "ward" }
+    ];
+
+    $scope.data = {
+        selectedType: ''
+    };
+    
+    $scope.getOrganisationsByTaxonomy = function(taxonomyTerm, taxonomyType) {
+        
+        $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_term?parameters[name]=' + taxonomyTerm + '&pagesize=1&access_token=' + service.accessToken + '')
+        .success(function(data) {
+            $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1000&parameters[' + taxonomyType + '][id]=' + data[0].tid + '&access_token=' + service.accessToken + '')
+            .success(function(data) {
+                $scope.organisationsByTaxonomy = [];
+                angular.forEach(data, function(item) {
+                    $scope.organisationsByTaxonomy.push({
+                        title: item.label
+                    });
+                });
+            });
+        });
+    }
+})
+
+/*app.controller('CreateOrganisationCtrl', function($scope, $http, service) {
 
   $scope.createOrganisation = function(organisation) {
     $http({
@@ -277,7 +233,7 @@ app.controller('CreateOrganisationCtrl', function($scope, $http, service) {
                         }
                     },
             headers: {
-                'Content-Type': 'application/json' // Supposedly $http defaults the Content-Type to JSON, so this header may not be required.
+                'Content-Type': 'application/json'
             }
     }).then(function successCallback(response) {
         angular.element(document.querySelector(".createOrganisationCard")).css("display", "block");
@@ -290,4 +246,4 @@ app.controller('CreateOrganisationCtrl', function($scope, $http, service) {
         .css({"background-color": "#a94442", "color": "white"});
     });
   }
-})
+})*/

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-    <title></title>
+    <title>LOCIID Demo App</title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -42,7 +42,6 @@
                 Authorisation
             </div>
             <div ng-controller="AuthoriseCtrl">
-                <!-- API key functionality -->
                 <div class="list">
                     <label class="item item-input">
                         <span class="input-label">API key:</span>
@@ -63,32 +62,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Access token functionality -->
-                <!--<div class="list">
-                    <label class="item item-input">
-                        <span class="input-label">Username:</span>
-                        <input type="text" ng-model="user.username">
-                    </label>
-                    <label class="item item-input">
-                        <span class="input-label">Password:</span>
-                        <input type="password" ng-model="user.password">
-                    </label>
-                </div>
-                <div style="text-align: center; margin: auto; width: 80%;">
-                    <button class="button button-block button-outline button-positive" ng-click="authorise(user)">
-                        Authorise user
-                    </button>
-                    
-                    <div class="card authoriseMessageCard">
-                        <div class="item item-divider authoriseMessageHeader" style="background-color: #f0ad4e; color: white">
-                            <i class="icon ion-information-circled"></i> Submit your user details above for authorisation
-                        </div>
-                        <div class="item item-text-wrap authoriseMessageBody">
-                            If you don't, you won't be able to make calls to the API!
-                        </div>
-                    </div>
-                </div>-->
             </div>
             
             <div class="item item-divider">
@@ -101,153 +74,71 @@
                         Enter the number of organisations you wish to retrieve
                     </div>
                 </div>
-                
-                <div class="list">
-                    <div class="item item-input-inset">
-                        <label class="item-input-wrapper" style="background: #F0F8FF;">
-                            <input type="text" ng-model="numOfOrgs">
-                        </label>
-                        <button class="button button-small button-positive" ng-click="getOrganisations(numOfOrgs)">
-                            Submit
-                        </button>
-                    </div>
+
+                <div class="item item-input-inset">
+                    <label class="item-input-wrapper" style="background: white;">
+                        <input type="text" placeholder='E.g., "10"' ng-model="numOfOrgs">
+                    </label>
+                    <button class="button button-small button-positive" ng-click="getOrganisations(numOfOrgs)">
+                        Submit
+                    </button>
                 </div>
                 
+                <div class="line-separator"></div>
+             
                 <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
                     <ion-list>
                         <ion-item ng-repeat="organisation in organisations" ng-click="getOrganisation(organisation.title)">
                             {{organisation.title}}
                         </ion-item>
                     </ion-list>
-                    
-                    <script id="my-modal.html" type="text/ng-template">
-                        <ion-modal-view>
-                            <ion-header-bar class="bar bar-header bar-dark">
-                                <h1 class="title">{{name}}</h1>
-                            </ion-header-bar>
-                                
-                            <ion-content class="padding"  style="margin-top: 10px;">
-                                <ui-gmap-google-map center='map.center' zoom='map.zoom' aria-label="Google Map">
-                                    <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">
-                                        <ui-gmap-window>
-                                            <div>{{marker.window.title}}</div>
-                                        </ui-gmap-window>
-                                    </ui-gmap-marker>
-                                </ui-gmap-google-map>
-                                <div class="card" style="margin: 0;">
-                                    <div class="item item-text-wrap">
-                                        {{address.addressLine1}}, {{address.addressLine2}}, {{address.postcode}}, {{address.administrativeArea}}, {{address.country}}
-                                    </div>
-                                </div>
-                                
-                                <div class="list" style="padding-top: 10px;">
-                                    <div class="item item-divider">
-                                        About
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        <div ng-bind-html="summary"></div>
-                                    </li>
-                                    <div class="item item-divider">
-                                        Services
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        <div ng-bind-html="services"></div>
-                                    </li>
-                                    <div class="item item-divider">
-                                        Opening hours
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        <div ng-bind-html="openingHours"></div>
-                                    </li>
-                                    <div class="item item-divider">
-                                        Constituency
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        {{constituency}}
-                                    </li>
-                                    <div class="item item-divider">
-                                        Council
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        {{council}}
-                                    </li>
-                                
-                                
-                                    <div class="item item-divider">
-                                        Electoral Area
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        {{electoralArea}}
-                                    </li>
-                                
-                                    <div class="item item-divider">
-                                        Ward
-                                    </div>
-                                    <li class="item item-text-wrap">
-                                        {{ward}}
-                                    </li>
-                                    
-                                     <div class="item item-divider">
-                                        Contact details
-                                    </div>
-                                    <a class="item item-icon-left" href="{{website}}" target="_blank">
-                                        <i class="icon ion-earth"></i>
-                                        {{website}}
-                                    </a>
-                                
-                                    <a class="item item-icon-left" href="mailto:{{email}}" target="_top">
-                                        <i class="icon ion-email"></i>
-                                        {{email}}
-                                    </a> 
-                                
-                                    <a class="item item-icon-left" href="tel:{{phone}}">
-                                        <i class="icon ion-ios-telephone"></i>
-                                        {{phone}}
-                                    </a>  
-                                
-                                    <a class="item item-icon-left" href="https://www.twitter.com/{{twitter}}" target="_blank">
-                                        <i class="icon ion-social-twitter"></i>
-                                        {{twitter}}
-                                    </a>
-                                
-                                    <a class="item item-icon-left" href="{{facebook}}" target="_blank">
-                                        <i class="icon ion-social-facebook"></i>
-                                        {{facebook}}
-                                    </a>
-                                        
-                                    <li class="item item-text-wrap">
-                                        View this organisation on the LOCIID Website: <a href="{{url}}" target="_blank">{{url}}</a>
-                                    </li>
-                               </div>
-                            </ion-content>
-                            
-                            <ion-footer-bar class="bar-balanced" style="cursor: pointer; cursor: hand;">
-                                <div class="title" ng-click="closeModal()">Close</div>
-                            </ion-footer-bar>
-                        </ion-modal-view>
-                    </script>
-                    
-                    <!-- Dropdown functionality -->
-                    <!--<ion-list>
-                        <div ng-repeat="organisation in organisations">
-                        <ion-item class="item-stable"
-                                    ng-click="toggleGroup(organisation)"
-                                    ng-class="{active: isGroupShown(organisation)}">
-                            <i class="icon" ng-class="isGroupShown(organisation) ? 'ion-minus' : 'ion-plus'"></i>
-                            &nbsp;
-                            {{organisation.title}}
-                        </ion-item>
-                        <ion-item class="item-accordion"
-                                    ng-repeat="orgitem in organisation.items"
-                                    ng-show="isGroupShown(organisation)">
-                            {{orgitem}}
-                        </ion-item>
-                        </div>
-                    </ion-list>-->
                 </div>
             </div>
             
             <div class="item item-divider">
+                Get organisations by taxonomy
+            </div>
+            
+            <div ng-controller="GetOrganisationsByTaxonomyCtrl" style="width: 80%; margin: auto;" class="padding">
+                <div class="card">
+                    <div class="item item-text-wrap">
+                        Enter a taxonomy term, then select its taxonomy type
+                    </div>
+                </div>
+                
+                <div class="list">
+                    <div class="item item-input-inset">
+                        <label class="item-input-wrapper" style="background: white;">
+                            <input type="text" placeholder="Taxonomy term" ng-model="taxonomyTerm">
+                        </label>
+                        <button class="button button-small button-positive" ng-click="getOrganisationsByTaxonomy(taxonomyTerm, data.selectedType)">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="item item-divider">
+                    Select the taxonomy type
+                </div>
+        
+                <ion-radio ng-repeat="item in taxonomyTypes"
+                        ng-value="item.value"
+                        ng-model="data.selectedType">
+                        {{ item.text }}
+                </ion-radio>
+                
+                <div class="line-separator"></div>
+                
+                <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
+                    <ion-list>
+                        <ion-item ng-repeat="organisation in organisationsByTaxonomy" ng-click="getOrganisation(organisation.title)">
+                            {{organisation.title}}
+                        </ion-item>
+                    </ion-list>
+                </div>
+            </div>
+            
+            <!--<div class="item item-divider">
                 Create organisation
             </div>
             
@@ -272,9 +163,115 @@
                 <button class="button button-positive" style="margin-bottom: 20px;" ng-click="createOrganisation(organisation)">
                     Submit
                 </button>
-            </div>
+            </div>-->
         </div>
     </ion-content>
+    
+    <script id="my-modal.html" type="text/ng-template">
+        <ion-modal-view>
+            <ion-header-bar class="bar bar-header bar-dark">
+                <h1 class="title">{{name}}</h1>
+            </ion-header-bar>
+                
+            <ion-content class="padding"  style="margin-top: 10px;">
+                <ui-gmap-google-map center='map.center' zoom='map.zoom' aria-label="Google Map">
+                    <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">
+                        <ui-gmap-window>
+                            <div>{{marker.window.title}}</div>
+                        </ui-gmap-window>
+                    </ui-gmap-marker>
+                </ui-gmap-google-map>
+                <div class="card" style="margin: 0;">
+                    <div class="item item-text-wrap">
+                        {{address.addressLine1}}, {{address.addressLine2}}, {{address.postcode}}, {{address.administrativeArea}}, {{address.country}}
+                    </div>
+                </div>
+                
+                <div class="list" style="padding-top: 10px;">
+                    <div class="item item-divider">
+                        About
+                    </div>
+                    <li class="item item-text-wrap">
+                        <div ng-bind-html="summary"></div>
+                    </li>
+                    <div class="item item-divider">
+                        Services
+                    </div>
+                    <li class="item item-text-wrap">
+                        <div ng-bind-html="services"></div>
+                    </li>
+                    <div class="item item-divider">
+                        Opening hours
+                    </div>
+                    <li class="item item-text-wrap">
+                        <div ng-bind-html="openingHours"></div>
+                    </li>
+                    <div class="item item-divider">
+                        Constituency
+                    </div>
+                    <li class="item item-text-wrap">
+                        {{constituency}}
+                    </li>
+                    <div class="item item-divider">
+                        Council
+                    </div>
+                    <li class="item item-text-wrap">
+                        {{council}}
+                    </li>
+                
+                    <div class="item item-divider">
+                        Electoral Area
+                    </div>
+                    <li class="item item-text-wrap">
+                        {{electoralArea}}
+                    </li>
+                
+                    <div class="item item-divider">
+                        Ward
+                    </div>
+                    <li class="item item-text-wrap">
+                        {{ward}}
+                    </li>
+                    
+                        <div class="item item-divider">
+                        Contact details
+                    </div>
+                    <a class="item item-icon-left" href="{{website}}" target="_blank">
+                        <i class="icon ion-earth"></i>
+                        {{website}}
+                    </a>
+                
+                    <a class="item item-icon-left" href="mailto:{{email}}" target="_top">
+                        <i class="icon ion-email"></i>
+                        {{email}}
+                    </a> 
+                
+                    <a class="item item-icon-left" href="tel:{{phone}}">
+                        <i class="icon ion-ios-telephone"></i>
+                        {{phone}}
+                    </a>  
+                
+                    <a class="item item-icon-left" href="https://www.twitter.com/{{twitter}}" target="_blank">
+                        <i class="icon ion-social-twitter"></i>
+                        {{twitter}}
+                    </a>
+                
+                    <a class="item item-icon-left" href="{{facebook}}" target="_blank">
+                        <i class="icon ion-social-facebook"></i>
+                        {{facebook}}
+                    </a>
+                        
+                    <li class="item item-text-wrap">
+                        View this organisation on the LOCIID Website: <a href="{{url}}" target="_blank">{{url}}</a>
+                    </li>
+                </div>
+            </ion-content>
+            
+            <ion-footer-bar class="bar-balanced" style="cursor: pointer; cursor: hand;">
+                <div class="title" ng-click="closeModal()">Close</div>
+            </ion-footer-bar>
+        </ion-modal-view>
+    </script>
     
 </body>
 </html>
