@@ -141,44 +141,26 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         angular.element(document.querySelector(".getOrganisationByNameNotFound")).css("display", "none");
         angular.element(document.querySelector(".didYouMeanCard")).css("display", "none");
         
-        var orgObject = response.data[0];
+        $scope.orgObject = response.data[0];
         
-        $scope.openModal(orgObject.geolocation.lat, orgObject.geolocation.lon, orgObject.label);
-        $scope.name = orgObject.label;
-        $scope.summary = orgObject.about.value;
-        $scope.address = {
-            addressLine1: orgObject.address.thoroughfare,
-            addressLine2: orgObject.address.locality,
-            postcode: orgObject.address.postal_code,
-            administrativeArea: orgObject.address.administrative_area,
-            country: orgObject.address.country
-        };
-        
-        GetTermService.getData(orgObject.constituency.uri).then(function(data) {
-            $scope.constituency = data.data.name;
+        GetTermService.getData($scope.orgObject.constituency.uri).then(function(data) {
+            $scope.orgObject.constituency = data.data.name;
         })
         
-        GetTermService.getData(orgObject.council.uri).then(function(data) {
-            $scope.council = data.data.name;
+        GetTermService.getData($scope.orgObject.council.uri).then(function(data) {
+            $scope.orgObject.council = data.data.name;
         })
         
-        GetTermService.getData(orgObject.electoral_area.uri).then(function(data) {
-            $scope.electoralArea = data.data.name;
+        GetTermService.getData($scope.orgObject.electoral_area.uri).then(function(data) {
+            $scope.orgObject.electoralArea = data.data.name;
         })
         
-        GetTermService.getData(orgObject.ward.uri).then(function(data) {
-            $scope.ward = data.data.name;
+        GetTermService.getData($scope.orgObject.ward.uri).then(function(data) {
+            $scope.orgObject.ward = data.data.name;
         })
-        
-        $scope.email = orgObject.email;
-        $scope.facebook = orgObject.facebook.url;
-        $scope.openingHours = (orgObject.opening_hours == null || !orgObject.opening_hours.value) ? 'Not available' : orgObject.opening_hours.value;
-        $scope.phone = orgObject.phone;
-        $scope.services = orgObject.services.value;
-        $scope.twitter = (orgObject.twitter == null) ? 'Not available' : orgObject.twitter;
-        $scope.url = orgObject.url;
-        $scope.website = (orgObject.website == null) ? 'Not available' : orgObject.website.url;
-        
+
+        $scope.openModal($scope.orgObject.geolocation.lat, $scope.orgObject.geolocation.lon, $scope.orgObject.label);
+
     }, function errorCallback(response) {
         
         angular.element(document.querySelector(".getOrganisationByNameNotFound")).css("display", "block");
@@ -189,9 +171,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             angular.forEach(data, function(item) {
                 lev = item.label.levenshtein(organisationName);
                 
-                if(lev >=0 && lev <= 3) {
-                    $scope.didYouMean = item.label;
-                }
+                if (lev >=0 && lev <= 3) $scope.didYouMean = item.label;
             });
             
             if ($scope.didYouMean.length !== 0) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");
@@ -226,6 +206,37 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
                 });
             });
         });
+    }
+})
+
+app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, service) {
+    $scope.getOrganisationsNearMe = function(noOfMiles) {
+        navigator.geolocation.getCurrentPosition(success, error, options);
+
+        function success(pos) {
+            $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?fields=label,geolocation&pagesize=1000&access_token=' + service.accessToken + '')
+            .success(function(data) {
+                $scope.organisationsNearMe = [];
+                angular.forEach(data, function(item) {
+                    if (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude), 
+                        new google.maps.LatLng(item.geolocation.lat, item.geolocation.lon)) < (noOfMiles * 1609.344)) {
+                            $scope.organisationsNearMe.push({
+                                title: item.label
+                            });
+                    }
+                });
+            });
+        };
+
+        function error(err) {
+            console.warn('ERROR(' + err.code + '): ' + err.message);
+        };
+
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
     }
 })
 

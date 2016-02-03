@@ -22,7 +22,8 @@
     <!-- your app's js -->
     <script src="js/app.js"></script>
     
-    <script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
+    <!--<script src='//maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry'></script>-->
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true&libraries=geometry"></script>
 
     <script src='lib/lodash.js'></script>
     <script src='lib/angular-simple-logger.js'></script>
@@ -173,6 +174,39 @@
                 </div>
             </div>
             
+            <div class="item item-divider">
+                Get organisations near me
+            </div>
+            
+            <div ng-controller="GetOrganisationsNearMeCtrl" style="width: 80%; margin: auto;" class="padding">
+                <div class="card">
+                    <div class="item item-text-wrap">
+                        Enter a proximity (in miles)
+                    </div>
+                </div>
+
+                <div class="list" style="margin-top: 20px;">
+                    <div class="item item-input-inset">
+                        <label class="item-input-wrapper" style="background: white;">
+                            <input type="text" ng-model="noOfMiles">
+                        </label>
+                        <button class="button button-small button-positive" ng-click="getOrganisationsNearMe(noOfMiles)">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="line-separator"></div>
+                
+                <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
+                    <ion-list>
+                        <ion-item ng-repeat="organisation in organisationsNearMe" ng-click="getOrganisation(organisation.title)">
+                            {{organisation.title}}
+                        </ion-item>
+                    </ion-list>
+                </div>
+            </div>
+            
             <!--<div class="item item-divider">
                 Create organisation
             </div>
@@ -205,7 +239,7 @@
     <script id="my-modal.html" type="text/ng-template">
         <ion-modal-view>
             <ion-header-bar class="bar bar-header bar-dark">
-                <h1 class="title">{{name}}</h1>
+                <h1 class="title">{{orgObject.label}}</h1>
             </ion-header-bar>
                 
             <ion-content class="padding"  style="margin-top: 10px;">
@@ -218,7 +252,7 @@
                 </ui-gmap-google-map>
                 <div class="card" style="margin: 0;">
                     <div class="item item-text-wrap">
-                        {{address.addressLine1}}, {{address.addressLine2}}, {{address.postcode}}, {{address.administrativeArea}}, {{address.country}}
+                        {{orgObject.address.thoroughfare}}, {{orgObject.address.locality}}, {{orgObject.address.postal_code}}, {{orgObject.address.administrative_area}}, {{orgObject.address.country}}
                     </div>
                 </div>
                 
@@ -227,77 +261,77 @@
                         About
                     </div>
                     <li class="item item-text-wrap">
-                        <div ng-bind-html="summary"></div>
+                        <div ng-bind-html="orgObject.about.value"></div>
                     </li>
                     <div class="item item-divider">
                         Services
                     </div>
                     <li class="item item-text-wrap">
-                        <div ng-bind-html="services"></div>
+                        <div ng-bind-html="orgObject.services.value"></div>
                     </li>
                     <div class="item item-divider">
                         Opening hours
                     </div>
                     <li class="item item-text-wrap">
-                        <div ng-bind-html="openingHours"></div>
+                        <div ng-bind-html="orgObject.opening_hours.value"></div>
                     </li>
                     <div class="item item-divider">
                         Constituency
                     </div>
                     <li class="item item-text-wrap">
-                        {{constituency}}
+                        {{orgObject.constituency}}
                     </li>
                     <div class="item item-divider">
                         Council
                     </div>
                     <li class="item item-text-wrap">
-                        {{council}}
+                        {{orgObject.council}}
                     </li>
                 
                     <div class="item item-divider">
                         Electoral Area
                     </div>
                     <li class="item item-text-wrap">
-                        {{electoralArea}}
+                        {{orgObject.electoralArea}}
                     </li>
                 
                     <div class="item item-divider">
                         Ward
                     </div>
                     <li class="item item-text-wrap">
-                        {{ward}}
+                        {{orgObject.ward}}
                     </li>
                     
-                        <div class="item item-divider">
+                    <div class="item item-divider">
                         Contact details
                     </div>
-                    <a class="item item-icon-left" href="{{website}}" target="_blank">
+                    <a class="item item-icon-left contactDetailsItem" href="{{orgObject.website.url}}" target="_blank">
                         <i class="icon ion-earth"></i>
-                        {{website}}
+                        {{orgObject.website.url}}
                     </a>
                 
-                    <a class="item item-icon-left" href="mailto:{{email}}" target="_top">
+                    <a class="item item-icon-left contactDetailsItem" href="mailto:{{orgObject.email}}" target="_top">
                         <i class="icon ion-email"></i>
-                        {{email}}
+                        {{orgObject.email}}
                     </a> 
                 
-                    <a class="item item-icon-left" href="tel:{{phone}}">
+                    <a class="item item-icon-left contactDetailsItem" href="tel:{{orgObject.phone}}">
                         <i class="icon ion-ios-telephone"></i>
-                        {{phone}}
+                        {{orgObject.phone}}
                     </a>  
                 
-                    <a class="item item-icon-left" href="https://www.twitter.com/{{twitter}}" target="_blank">
+                    <a class="item item-icon-left contactDetailsItem" href="https://www.twitter.com/{{orgObject.twitter}}" target="_blank">
                         <i class="icon ion-social-twitter"></i>
-                        {{twitter}}
+                        {{orgObject.twitter}}
                     </a>
                 
-                    <a class="item item-icon-left" href="{{facebook}}" target="_blank">
+                    <a class="item item-icon-left contactDetailsItem" href="{{orgObject.facebook.url}}" target="_blank">
                         <i class="icon ion-social-facebook"></i>
-                        {{facebook}}
+                        {{orgObject.facebook.url}}
                     </a>
                         
                     <li class="item item-text-wrap">
-                        View this organisation on the LOCIID Website: <a href="{{url}}" target="_blank">{{url}}</a>
+                        View this organisation on the LOCIID Website: <a href="{{orgObject.url}}" target="_blank">{{orgObject.url}}</a>
                     </li>
                 </div>
             </ion-content>

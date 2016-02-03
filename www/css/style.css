@@ -7,6 +7,10 @@
     color: #8c8c8c;
 }
 
+.contactDetailsItem {
+    height: 54px;
+}
+
 .angular-google-map-container {
     height: 200px;
 }
