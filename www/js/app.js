@@ -33,7 +33,7 @@ app.service('service', function () {
     return {};
 })
 
-app.service('GetTermService', function($http, service) {
+app.service('GetResourceService', function($http, service) {
     this.getData = function(uri) {
       return $http.get(uri + '?access_token=' + service.accessToken + '');
     };
@@ -80,7 +80,7 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service) {
   }
 })
 
-app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicModal, GetTermService) {
+app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicModal, GetResourceService) {
   
     $ionicModal.fromTemplateUrl('my-modal.html', {
         scope: $scope,
@@ -143,19 +143,28 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         
         $scope.orgObject = response.data[0];
         
-        GetTermService.getData($scope.orgObject.constituency.uri).then(function(data) {
+        if ($scope.orgObject.logo.file !== undefined) {
+            GetResourceService.getData($scope.orgObject.logo.file.uri).then(function(data) {
+                $scope.orgObject.logo = data.data.url;
+            })
+        }
+        else {
+            $scope.orgObject.logo = '';
+        }
+        
+        GetResourceService.getData($scope.orgObject.constituency.uri).then(function(data) {
             $scope.orgObject.constituency = data.data.name;
         })
         
-        GetTermService.getData($scope.orgObject.council.uri).then(function(data) {
+        GetResourceService.getData($scope.orgObject.council.uri).then(function(data) {
             $scope.orgObject.council = data.data.name;
         })
         
-        GetTermService.getData($scope.orgObject.electoral_area.uri).then(function(data) {
+        GetResourceService.getData($scope.orgObject.electoral_area.uri).then(function(data) {
             $scope.orgObject.electoralArea = data.data.name;
         })
         
-        GetTermService.getData($scope.orgObject.ward.uri).then(function(data) {
+        GetResourceService.getData($scope.orgObject.ward.uri).then(function(data) {
             $scope.orgObject.ward = data.data.name;
         })
 
@@ -239,40 +248,3 @@ app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, service) {
         };
     }
 })
-
-/*app.controller('CreateOrganisationCtrl', function($scope, $http, service) {
-
-  $scope.createOrganisation = function(organisation) {
-    $http({
-            method: 'POST',
-            url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?access_token=' + service.accessToken + '',
-            data: {
-                        type: 'organisation',
-                        title: organisation.name,
-                        body:{
-                            und:[
-                                {
-                                    value: organisation.summary,
-                                    summary:"",
-                                    format:"filtered_html",
-                                    safe_value:"",
-                                    safe_summary:""
-                                }
-                            ]
-                        }
-                    },
-            headers: {
-                'Content-Type': 'application/json'
-            }
-    }).then(function successCallback(response) {
-        angular.element(document.querySelector(".createOrganisationCard")).css("display", "block");
-        angular.element(document.querySelector(".createOrganisationMessage")).html('<i class="icon ion-checkmark-circled"></i> Status: 200. POST request was successful.')
-        .css({"background-color": "#3c763d", "color": "white"});
-        $scope.organisation = null;
-    }, function errorCallback(response) {
-        angular.element(document.querySelector(".createOrganisationCard")).css("display", "block");
-        angular.element(document.querySelector(".createOrganisationMessage")).html('<i class="icon ion-close-circled"></i> ' + response.data.form_errors.title)
-        .css({"background-color": "#a94442", "color": "white"});
-    });
-  }
-})*/

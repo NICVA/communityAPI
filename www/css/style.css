@@ -11,6 +11,11 @@
     height: 54px;
 }
 
+.img-responsive {
+    max-width: 100%;
+    height: auto;
+}
+
 .angular-google-map-container {
     height: 200px;
 }
