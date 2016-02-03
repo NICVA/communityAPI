@@ -51,7 +51,7 @@ app.controller('AuthoriseCtrl', function($scope, $http, service) {
             angular.element(document.querySelector(".authoriseMessageBody")).html('<p>You are now able to make calls to the API</p>');
         }
         else {
-            angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-checkmark-circled"></i> API key not valid.')
+            angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API key not valid.')
             .css({"background-color": "#a94442", "color": "white"});
             angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key</p>');
         }
@@ -138,6 +138,9 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
                 'Content-Type': 'application/json'
             }
     }).then(function successCallback(response) {
+        angular.element(document.querySelector(".getOrganisationByNameNotFound")).css("display", "none");
+        angular.element(document.querySelector(".didYouMeanCard")).css("display", "none");
+        
         var orgObject = response.data[0];
         
         $scope.openModal(orgObject.geolocation.lat, orgObject.geolocation.lon, orgObject.label);
@@ -178,6 +181,21 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         
     }, function errorCallback(response) {
         
+        angular.element(document.querySelector(".getOrganisationByNameNotFound")).css("display", "block");
+        
+        $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1000&fields=label&access_token=' + service.accessToken + '')
+        .success(function(data) {
+            var lev;
+            angular.forEach(data, function(item) {
+                lev = item.label.levenshtein(organisationName);
+                
+                if(lev >=0 && lev <= 3) {
+                    $scope.didYouMean = item.label;
+                }
+            });
+            
+            if ($scope.didYouMean.length !== 0) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");
+        });
     });
   }
 })

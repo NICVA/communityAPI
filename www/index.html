@@ -27,6 +27,9 @@
     <script src='lib/lodash.js'></script>
     <script src='lib/angular-simple-logger.js'></script>
     <script src='lib/angular-google-maps/dist/angular-google-maps.js'></script>
+    
+    <script src='lib/MooTools-Core-1.6.0.js'></script>
+    <script src='lib/String.levenshtein.js'></script>
 </head>
 
 <body ng-app="starter">
@@ -82,6 +85,18 @@
                     <button class="button button-small button-positive" ng-click="getOrganisation(organisationName)">
                         Submit
                     </button>
+                </div>
+                
+                <div class="card getOrganisationByNameNotFound" style="display: none;">
+                    <div class="item item-text-wrap" style="background-color: #a94442; color: white">
+                        <i class="icon ion-close-circled"></i> Organisation not found!
+                    </div>
+                </div>
+                
+                <div class="card didYouMeanCard" style="display: none;">
+                    <div class="item item-text-wrap" style="background-color: #f0ad4e; color: white">
+                        <i class="icon ion-information-circled"></i> Did you mean: {{didYouMean}}
+                    </div>
                 </div>
             </div>
             
@@ -194,7 +209,7 @@
             </ion-header-bar>
                 
             <ion-content class="padding"  style="margin-top: 10px;">
-                <ui-gmap-google-map center='map.center' zoom='map.zoom' aria-label="Google Map">
+                <ui-gmap-google-map center='map.center' zoom='map.zoom' options='{scrollwheel: false}' aria-label="Google Map">
                     <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">
                         <ui-gmap-window>
                             <div>{{marker.window.title}}</div>
