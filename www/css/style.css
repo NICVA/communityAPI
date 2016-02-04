@@ -8,7 +8,7 @@
 }
 
 .contactDetailsItem {
-    height: 54px;
+    min-height: 54px;
 }
 
 .img-responsive {

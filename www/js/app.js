@@ -39,6 +39,15 @@ app.service('GetResourceService', function($http, service) {
     };
 });
 
+app.service('ShowAlertService', function($ionicPopup) {
+    this.run = function(parameter) {
+        $ionicPopup.alert({
+            title: parameter.title,
+            template: parameter.message
+        });
+    };
+});
+
 /* Controllers */
 
 app.controller('AuthoriseCtrl', function($scope, $http, service) {
@@ -58,7 +67,7 @@ app.controller('AuthoriseCtrl', function($scope, $http, service) {
     }
 })
 
-app.controller('GetOrganisationsCtrl', function($scope, $http, service) {
+app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAlertService) {
   
   $scope.getOrganisations = function(numOfOrgs) {
     $http({
@@ -75,7 +84,12 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service) {
             });
         });
     }, function errorCallback(response) {
-        
+        var errorObj = {
+                "title": "Error!",
+                "message": "Make sure you have authorised yourself first."
+        }
+            
+        ShowAlertService.run(errorObj);
     });
   }
 })
@@ -219,10 +233,9 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     }
 })
 
-app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, service) {
+app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup, service, ShowAlertService) {
+    
     $scope.getOrganisationsNearMe = function(noOfMiles) {
-        navigator.geolocation.getCurrentPosition(success, error, options);
-
         function success(pos) {
             $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?fields=label,geolocation&pagesize=1000&access_token=' + service.accessToken + '')
             .success(function(data) {
@@ -239,14 +252,18 @@ app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, service) {
         };
 
         function error(err) {
-            //console.warn('ERROR(' + err.code + '): ' + err.message);
-            
+            var errorObj = {
+                "title": "Error!",
+                "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on."
+            }
+            ShowAlertService.run(errorObj);
         };
 
         var options = {
             enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
+            timeout: 5000
         };
+        
+        navigator.geolocation.getCurrentPosition(success, error, options);
     }
 })

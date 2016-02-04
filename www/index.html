@@ -113,7 +113,7 @@
 
                 <div class="item item-input-inset">
                     <label class="item-input-wrapper" style="background: white;">
-                        <input type="text" placeholder='E.g., "10"' ng-model="numOfOrgs">
+                        <input type="number" placeholder='E.g., "10"' ng-model="numOfOrgs">
                     </label>
                     <button class="button button-small button-positive" ng-click="getOrganisations(numOfOrgs)">
                         Submit
@@ -124,7 +124,7 @@
              
                 <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
                     <ion-list>
-                        <ion-item ng-repeat="organisation in organisations" ng-click="getOrganisation(organisation.title)">
+                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisations" ng-click="getOrganisation(organisation.title)">
                             {{organisation.title}}
                         </ion-item>
                     </ion-list>
@@ -166,7 +166,7 @@
                 
                 <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
                     <ion-list>
-                        <ion-item ng-repeat="organisation in organisationsByTaxonomy" ng-click="getOrganisation(organisation.title)">
+                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisationsByTaxonomy" ng-click="getOrganisation(organisation.title)">
                             {{organisation.title}}
                         </ion-item>
                     </ion-list>
@@ -187,7 +187,7 @@
                 <div class="list" style="margin-top: 20px;">
                     <div class="item item-input-inset">
                         <label class="item-input-wrapper" style="background: white;">
-                            <input type="text" ng-model="noOfMiles">
+                            <input type="number" ng-model="noOfMiles">
                         </label>
                         <button class="button button-small button-positive" ng-click="getOrganisationsNearMe(noOfMiles)">
                             Submit
@@ -199,7 +199,7 @@
                 
                 <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
                     <ion-list>
-                        <ion-item ng-repeat="organisation in organisationsNearMe" ng-click="getOrganisation(organisation.title)">
+                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisationsNearMe" ng-click="getOrganisation(organisation.title)">
                             {{organisation.title}}
                         </ion-item>
                     </ion-list>
@@ -280,27 +280,27 @@
                     <div class="item item-divider">
                         Contact details
                     </div>
-                    <a class="item item-icon-left contactDetailsItem" href="{{orgObject.website.url}}" target="_blank">
+                    <a class="item item-text-wrap item-icon-left contactDetailsItem" href="{{orgObject.website.url}}" target="_blank">
                         <i class="icon ion-earth"></i>
                         {{orgObject.website.url}}
                     </a>
                 
-                    <a class="item item-icon-left contactDetailsItem" href="mailto:{{orgObject.email}}" target="_top">
+                    <a class="item item-text-wrap item-icon-left contactDetailsItem" href="mailto:{{orgObject.email}}" target="_top">
                         <i class="icon ion-email"></i>
                         {{orgObject.email}}
                     </a> 
                 
-                    <a class="item item-icon-left contactDetailsItem" href="tel:{{orgObject.phone}}">
+                    <a class="item item-text-wrap item-icon-left contactDetailsItem" href="tel:{{orgObject.phone}}">
                         <i class="icon ion-ios-telephone"></i>
                         {{orgObject.phone}}
                     </a>  
                 
-                    <a class="item item-icon-left contactDetailsItem" href="https://www.twitter.com/{{orgObject.twitter}}" target="_blank">
+                    <a class="item item-text-wrap item-icon-left contactDetailsItem" href="https://www.twitter.com/{{orgObject.twitter}}" target="_blank">
                         <i class="icon ion-social-twitter"></i>
                         {{orgObject.twitter}}
                     </a>
                 
-                    <a class="item item-icon-left contactDetailsItem" href="{{orgObject.facebook.url}}" target="_blank">
+                    <a class="item item-text-wrap item-icon-left contactDetailsItem" href="{{orgObject.facebook.url}}" target="_blank">
                         <i class="icon ion-social-facebook"></i>
                         {{orgObject.facebook.url}}
                     </a>
