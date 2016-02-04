@@ -90,8 +90,6 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     });
         
     $scope.openModal = function(lat, lon, title) {
-        $scope.modal.show();
-
         $scope.map = { 
             center: { 
                 latitude: lat,
@@ -109,10 +107,13 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
                 "title": title
             }
         };
+        
+        $scope.modal.show();
     };
         
     $scope.closeModal = function() {
         $scope.modal.hide();
+        $scope.orgImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
     };
         
     // Cleanup the modal when we're done with it!
@@ -144,12 +145,12 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         $scope.orgObject = response.data[0];
         
         if ($scope.orgObject.logo.file !== undefined) {
-            GetResourceService.getData($scope.orgObject.logo.file.uri).then(function(data) {
-                $scope.orgObject.logo = data.data.url;
+            $http.get($scope.orgObject.logo.file.uri + '?fields=url&access_token=' + service.accessToken + '').then(function(data) {
+                $scope.orgImage = data.data.url;
             })
         }
         else {
-            $scope.orgObject.logo = '';
+            $scope.orgImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
         }
         
         GetResourceService.getData($scope.orgObject.constituency.uri).then(function(data) {
@@ -167,7 +168,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         GetResourceService.getData($scope.orgObject.ward.uri).then(function(data) {
             $scope.orgObject.ward = data.data.name;
         })
-
+        
         $scope.openModal($scope.orgObject.geolocation.lat, $scope.orgObject.geolocation.lon, $scope.orgObject.label);
 
     }, function errorCallback(response) {
