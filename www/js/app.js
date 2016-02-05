@@ -67,23 +67,22 @@ app.service('LoadingService', function($ionicLoading) {
 /* Controllers */
 
 app.controller('AuthoriseCtrl', function($scope, $http, service) {
-
     $scope.authorise = function(apiKey) {
-        if (apiKey.length == 40) {
+        $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1&fields=org_id&access_token=' + apiKey + '')
+        .success(function() {
             service.accessToken = apiKey;
             angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-checkmark-circled"></i> API key submitted!')
             .css({"background-color": "#3c763d", "color": "white"});
             angular.element(document.querySelector(".authoriseMessageBody")).html('<p>You are now able to make calls to the API</p>');
-        }
-        else {
+        }).error(function() {
             angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API key not valid.')
             .css({"background-color": "#a94442", "color": "white"});
             angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key</p>');
-        }
+        });
     }
 })
 
-app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAlertService, LoadingService, $ionicLoading, $timeout) {
+app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAlertService, LoadingService, $ionicLoading) {
   
   $scope.getOrganisations = function(numOfOrgs) {
     LoadingService.run();
@@ -237,7 +236,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
                     if (lev >=0 && lev <= 3) $scope.didYouMean = item.label;
                 });
                 
-                if ($scope.didYouMean.length !== 0) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");
+                if ($scope.didYouMean !== undefined) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");
                 
                 LoadingService.hide();
             });
@@ -259,6 +258,7 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     };
     
     $scope.getOrganisationsByTaxonomy = function(taxonomyTerm, taxonomyType) {
+        angular.element(document.querySelector(".getOrganisationByTaxnomyNotFound")).css("display", "none");
         LoadingService.run();
         
         $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_term?parameters[name]=' + taxonomyTerm + '&pagesize=1&access_token=' + service.accessToken + '')
@@ -273,6 +273,9 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
                 });
                 
                 LoadingService.hide();
+            }).error(function() {
+                LoadingService.hide();
+                angular.element(document.querySelector(".getOrganisationByTaxnomyNotFound")).css("display", "block");
             });
         }).error(function(error) {
             LoadingService.hide();

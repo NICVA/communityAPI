@@ -74,18 +74,29 @@
             <div ng-controller="GetOrganisationCtrl" style="width: 80%; margin: auto; margin-bottom: 20px;" class="padding">
                 <div class="card">
                     <div class="item item-text-wrap">
-                        Enter the name of the organisation you wish to retrieve
+                        Enter the full name of the organisation you wish to retrieve.
+                        <br>
+                        (If you spell the organisation name wrong, we will suggest organisations close to your search)
                     </div>
                 </div>
-
-                <div class="item item-input-inset">
-                    <label class="item-input-wrapper" style="background: white;">
-                        <input type="text" placeholder='E.g., "174 Trust"' ng-model="organisationName">
-                    </label>
-                    <button class="button button-small button-positive" style="padding: 3px 10px 3px 10px;" ng-click="getOrganisation(organisationName)">
-                        <i class="icon ion-ios-arrow-right"></i> Submit
-                    </button>
-                </div>
+                
+                <form name="orgByNameForm" ng-submit="getOrganisation(organisationName)" novalidate>
+                    <div ng-class="{ 'has-error' : orgByNameForm.organisationName.$invalid && !orgByNameForm.organisationName.$pristine }">
+                        <div class="item item-input-inset">
+                            <label class="item-input-wrapper" style="background: white;">
+                                <input type="text" name="organisationName" placeholder='E.g., "174 Trust"' ng-model="organisationName" ng-minlength="3" required>
+                            </label>
+                            <button type="submit" ng-disabled="orgByNameForm.$invalid" class="button button-small button-positive" style="padding: 3px 10px 3px 10px;">
+                                <i class="icon ion-ios-arrow-right"></i> Submit
+                            </button>
+                        </div>
+                        <div ng-show="orgByNameForm.organisationName.$error.minlength" class="card">
+                            <div class="item item-text-wrap" style="background-color: #a94442; color: white">
+                                <i class="icon ion-close-circled"></i> Organisation name is too short.
+                            </div>
+                        </div>
+                    </div>
+                </form>
                 
                 <div class="card getOrganisationByNameNotFound" style="display: none;">
                     <div class="item item-text-wrap" style="background-color: #a94442; color: white">
@@ -110,7 +121,7 @@
                         Enter the number of organisations you wish to retrieve
                     </div>
                 </div>
-
+                
                 <div class="item item-input-inset">
                     <label class="item-input-wrapper" style="background: white;">
                         <input type="number" placeholder='E.g., "10"' ng-model="numOfOrgs">
@@ -150,7 +161,7 @@
                         ng-model="data.selectedType">
                         {{ item.text }}
                 </ion-radio>
-                
+
                 <div class="list" style="margin-top: 20px;">
                     <div class="item item-input-inset">
                         <label class="item-input-wrapper" style="background: white;">
@@ -159,6 +170,12 @@
                         <button class="button button-small button-positive" style="padding: 3px 10px 3px 10px;" ng-click="getOrganisationsByTaxonomy(taxonomyTerm, data.selectedType)">
                             <i class="icon ion-ios-arrow-right"></i> Submit
                         </button>
+                    </div>
+                </div>
+                
+                <div class="card getOrganisationByTaxnomyNotFound" style="display: none;">
+                    <div class="item item-text-wrap" style="background-color: #a94442; color: white">
+                        <i class="icon ion-close-circled"></i> Term not found!
                     </div>
                 </div>
                 
