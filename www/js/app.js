@@ -288,6 +288,9 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
                     
                 ShowAlertService.run(errorObj);
             }
+            else {
+                angular.element(document.querySelector(".getOrganisationByTaxnomyNotFound")).css("display", "block");
+            }
         });
     }
 })
