@@ -173,7 +173,8 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     });
   
     $scope.getOrganisation = function(organisationName) {
- 
+      organisationName = encodeURIComponent(organisationName);
+        
       $http({
             method: 'GET',
             url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?parameters[label]=' + organisationName + '&access_token=' + service.accessToken + '',
@@ -233,7 +234,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
                 angular.forEach(data, function(item) {
                     lev = item.label.levenshtein(organisationName);
                     
-                    if (lev >=0 && lev <= 3) $scope.didYouMean = item.label;
+                    if (lev >=0 && lev <= 5) $scope.didYouMean = item.label;
                 });
                 
                 if ($scope.didYouMean !== undefined) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");
