@@ -48,6 +48,22 @@ app.service('ShowAlertService', function($ionicPopup) {
     };
 });
 
+app.service('LoadingService', function($ionicLoading) {
+    this.run = function() {
+        $ionicLoading.show({
+            content: 'Loading',
+            animation: 'fade-in',
+            showBackdrop: true,
+            maxWidth: 200,
+            showDelay: 0
+        });
+    };
+    
+    this.hide = function() {
+        $ionicLoading.hide();
+    }
+});
+
 /* Controllers */
 
 app.controller('AuthoriseCtrl', function($scope, $http, service) {
@@ -67,9 +83,11 @@ app.controller('AuthoriseCtrl', function($scope, $http, service) {
     }
 })
 
-app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAlertService) {
+app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAlertService, LoadingService, $ionicLoading, $timeout) {
   
   $scope.getOrganisations = function(numOfOrgs) {
+    LoadingService.run();
+    
     $http({
             method: 'GET',
             url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=' + numOfOrgs + '&access_token=' + service.accessToken + '',
@@ -83,7 +101,11 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAler
                 title: item.label
             });
         });
+
+        LoadingService.hide();
     }, function errorCallback(response) {
+        LoadingService.hide();
+        
         var errorObj = {
                 "title": "Error!",
                 "message": "Make sure you have authorised yourself first."
@@ -94,7 +116,7 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAler
   }
 })
 
-app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicModal, GetResourceService) {
+app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicModal, GetResourceService, LoadingService) {
   
     $ionicModal.fromTemplateUrl('my-modal.html', {
         scope: $scope,
@@ -116,6 +138,10 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             "coords": {
                 "latitude": lat,
                 "longitude": lon
+            },
+            "position": {
+                lat: lat,
+                lng: lon
             },
             "window": {
                 "title": title
@@ -146,6 +172,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     });
   
     $scope.getOrganisation = function(organisationName) {
+ 
       $http({
             method: 'GET',
             url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?parameters[label]=' + organisationName + '&access_token=' + service.accessToken + '',
@@ -186,6 +213,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         $scope.openModal($scope.orgObject.geolocation.lat, $scope.orgObject.geolocation.lon, $scope.orgObject.label);
 
     }, function errorCallback(response) {
+        LoadingService.run();
         
         angular.element(document.querySelector(".getOrganisationByNameNotFound")).css("display", "block");
         
@@ -199,12 +227,14 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             });
             
             if ($scope.didYouMean.length !== 0) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");
+            
+            LoadingService.hide();
         });
     });
   }
 })
 
-app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service) {
+app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service, LoadingService) {
     $scope.taxonomyTypes = [
         { text: "Council", value: "council" },
         { text: "Constituency", value: "constituency" },
@@ -217,6 +247,7 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     };
     
     $scope.getOrganisationsByTaxonomy = function(taxonomyTerm, taxonomyType) {
+        LoadingService.run();
         
         $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_term?parameters[name]=' + taxonomyTerm + '&pagesize=1&access_token=' + service.accessToken + '')
         .success(function(data) {
@@ -228,14 +259,18 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
                         title: item.label
                     });
                 });
+                
+                LoadingService.hide();
             });
         });
     }
 })
 
-app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup, service, ShowAlertService) {
+app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup, service, ShowAlertService, LoadingService) {
     
     $scope.getOrganisationsNearMe = function(noOfMiles) {
+        LoadingService.run();
+        
         function success(pos) {
             $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?fields=label,geolocation&pagesize=1000&access_token=' + service.accessToken + '')
             .success(function(data) {
@@ -248,10 +283,14 @@ app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup
                             });
                     }
                 });
+                
+                LoadingService.hide();
             });
         };
 
         function error(err) {
+            LoadingService.hide();
+            
             var errorObj = {
                 "title": "Error!",
                 "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on."
