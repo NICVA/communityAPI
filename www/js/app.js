@@ -204,6 +204,10 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
         
         $scope.orgObject = response.data[0];
         
+        if ($scope.orgObject.twitter !== null) {
+            $scope.orgTwitter = $scope.orgObject.twitter.substring(1, $scope.orgObject.twitter.length);
+        }
+        
         if ($scope.orgObject.logo.file !== undefined) {
             $http.get($scope.orgObject.logo.file.uri + '?fields=url&access_token=' + service.accessToken + '').then(function(data) {
                 $scope.orgImage = data.data.url;
