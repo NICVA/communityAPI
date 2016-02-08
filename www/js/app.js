@@ -68,16 +68,36 @@ app.service('LoadingService', function($ionicLoading) {
 
 app.controller('AuthoriseCtrl', function($scope, $http, service) {
     $scope.authorise = function(apiKey) {
-        $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1&fields=org_id&access_token=' + apiKey + '')
-        .success(function() {
+        
+        $http({
+            method: 'GET',
+            url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1&fields=org_id&access_token=' + apiKey + '',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(function successCallback(response) {
             service.accessToken = apiKey;
             angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-checkmark-circled"></i> API key submitted!')
             .css({"background-color": "#3c763d", "color": "white"});
             angular.element(document.querySelector(".authoriseMessageBody")).html('<p>You are now able to make calls to the API</p>');
-        }).error(function() {
-            angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API key not valid.')
-            .css({"background-color": "#a94442", "color": "white"});
-            angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key</p>');
+        }, function errorCallback(response) {
+            switch(response.status) {
+                case 401:
+                    angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API key not valid.')
+                    .css({"background-color": "#a94442", "color": "white"});
+                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key.</p>');
+                    break;
+                case 503:
+                    angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API service is currently unavailable.')
+                    .css({"background-color": "#a94442", "color": "white"});
+                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Please try again later, or contact us.</p>');
+                    break;
+                default:
+                    angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> An unexpected error occurred.')
+                    .css({"background-color": "#a94442", "color": "white"});
+                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Please try again later, or contact us.</p>');
+            }
+            
         });
     }
 })
@@ -127,26 +147,24 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     });
         
     $scope.openModal = function(lat, lon, title) {
-        $scope.map = { 
-            center: { 
-                latitude: lat,
-                longitude: lon }, 
-            zoom: 14
-        };
-        
+
         $scope.marker = {
             "id": "0",
             "coords": {
                 "latitude": lat,
                 "longitude": lon
             },
-            "position": {
-                lat: lat,
-                lng: lon
-            },
             "window": {
                 "title": title
             }
+        };
+        
+        $scope.map = { 
+            center: { 
+                latitude: $scope.marker.coords.latitude,
+                longitude: $scope.marker.coords.longitude
+            }, 
+            zoom: 14
         };
         
         $scope.modal.show();
@@ -173,11 +191,10 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     });
   
     $scope.getOrganisation = function(organisationName) {
-      organisationName = encodeURIComponent(organisationName);
-        
+ 
       $http({
             method: 'GET',
-            url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?parameters[label]=' + organisationName + '&access_token=' + service.accessToken + '',
+            url: 'http://dev-d7nicva-api.pantheon.io/api/organisation?parameters[label]=' + encodeURIComponent(organisationName) + '&access_token=' + service.accessToken + '',
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -196,21 +213,29 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             $scope.orgImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
         }
         
-        GetResourceService.getData($scope.orgObject.constituency.uri).then(function(data) {
-            $scope.orgObject.constituency = data.data.name;
-        })
+        if ($scope.orgObject.constituency !== undefined) {
+            GetResourceService.getData($scope.orgObject.constituency.uri).then(function(data) {
+                $scope.orgObject.constituency = data.data.name;
+            });
+        }
         
-        GetResourceService.getData($scope.orgObject.council.uri).then(function(data) {
-            $scope.orgObject.council = data.data.name;
-        })
+        if ($scope.orgObject.council !== undefined) {
+            GetResourceService.getData($scope.orgObject.council.uri).then(function(data) {
+                $scope.orgObject.council = data.data.name;
+            });
+        }
         
-        GetResourceService.getData($scope.orgObject.electoral_area.uri).then(function(data) {
-            $scope.orgObject.electoralArea = data.data.name;
-        })
+        if ($scope.orgObject.electoral_area !== undefined) {
+            GetResourceService.getData($scope.orgObject.electoral_area.uri).then(function(data) {
+                $scope.orgObject.electoralArea = data.data.name;
+            });
+        }
         
-        GetResourceService.getData($scope.orgObject.ward.uri).then(function(data) {
-            $scope.orgObject.ward = data.data.name;
-        })
+        if ($scope.orgObject.ward !== undefined) {
+            GetResourceService.getData($scope.orgObject.ward.uri).then(function(data) {
+                $scope.orgObject.ward = data.data.name;
+            });
+        }
         
         $scope.openModal($scope.orgObject.geolocation.lat, $scope.orgObject.geolocation.lon, $scope.orgObject.label);
 
@@ -230,11 +255,12 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
             
             $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1000&fields=label&access_token=' + service.accessToken + '')
             .success(function(data) {
-                var lev;
+                $scope.didYouMean = [];
                 angular.forEach(data, function(item) {
-                    lev = item.label.levenshtein(organisationName);
+                    if(item.label.search(organisationName) != -1) $scope.didYouMean += '"' + item.label + '" ';
                     
-                    if (lev >=0 && lev <= 5) $scope.didYouMean = item.label;
+                    // Old code to compare similar objects.
+                    //if (item.label.levenshtein(organisationName) >=0 && item.label.levenshtein(organisationName) <= 3) $scope.didYouMean = item.label;
                 });
                 
                 if ($scope.didYouMean !== undefined) angular.element(document.querySelector(".didYouMeanCard")).css("display", "block");

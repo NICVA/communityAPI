@@ -16,6 +16,11 @@
     height: auto;
 }
 
+.scroll {
+    height: 100%;
+}
+
 .angular-google-map-container {
     height: 200px;
+    width: 100%;
 }
