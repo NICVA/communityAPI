@@ -85,17 +85,17 @@ app.controller('AuthoriseCtrl', function($scope, $http, service) {
                 case 401:
                     angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API key not valid.')
                     .css({"background-color": "#a94442", "color": "white"});
-                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key.</p>');
+                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Make sure you submitted a valid API key</p>');
                     break;
                 case 503:
                     angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> API service is currently unavailable.')
                     .css({"background-color": "#a94442", "color": "white"});
-                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Please try again later, or contact us.</p>');
+                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Please try again later, or contact us</p>');
                     break;
                 default:
                     angular.element(document.querySelector(".authoriseMessageHeader")).html('<i class="icon ion-close-circled"></i> An unexpected error occurred.')
                     .css({"background-color": "#a94442", "color": "white"});
-                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Please try again later, or contact us.</p>');
+                    angular.element(document.querySelector(".authoriseMessageBody")).html('<p>Please try again later, or contact us</p>');
             }
             
         });
@@ -147,25 +147,26 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     });
         
     $scope.openModal = function(lat, lon, title) {
-
-        $scope.marker = {
-            "id": "0",
-            "coords": {
-                "latitude": lat,
-                "longitude": lon
-            },
-            "window": {
-                "title": title
-            }
-        };
-        
-        $scope.map = { 
-            center: { 
-                latitude: $scope.marker.coords.latitude,
-                longitude: $scope.marker.coords.longitude
-            }, 
-            zoom: 14
-        };
+        if ($scope.orgObject.geolocation.latlon !== undefined) {
+            $scope.marker = {
+                "id": "0",
+                "coords": {
+                    "latitude": lat,
+                    "longitude": lon
+                },
+                "window": {
+                    "title": title
+                }
+            };
+            
+            $scope.map = { 
+                center: { 
+                    latitude: lat,
+                    longitude: lon
+                }, 
+                zoom: 14
+            };
+        }
         
         $scope.modal.show();
     };
@@ -280,7 +281,7 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     $scope.taxonomyTypes = [
         { text: "Council", value: "council" },
         { text: "Constituency", value: "constituency" },
-        { text: "Electoral Area", value: "electoral area" },
+        { text: "Electoral Area", value: "electoral_area" },
         { text: "Ward", value: "ward" }
     ];
 
@@ -291,25 +292,25 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     $scope.getTaxonomyTerms = function(selectedType) {
         LoadingService.run();
         
-        $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_type?parameters[name]=' + selectedType + '&fields=vid&access_token=' + service.accessToken + '')
+        $scope.taxonomyTerms = [];
+        $scope.organisationsByTaxonomy = [];
+        
+        $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_type?parameters[machine_name]=' + selectedType + '&fields=vid&access_token=' + service.accessToken + '')
         .success(function(data) {
             var postData = $httpParamSerializerJQLike({
                 vid: data[0].vid
             });
             
             var config = {
-                headers : {
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             }
             
             $http.post('http://dev-d7nicva-api.pantheon.io/api/taxonomy_type/getTree?access_token=' + service.accessToken + '', postData, config)
             .success(function(data) {
-                $scope.taxonomyTerms = [];
                 angular.forEach(data, function(item) {
-                    $scope.taxonomyTerms.push({
-                        title: item.name
-                    });
+                    $scope.taxonomyTerms.push(item.name);
                 });
                 
                 LoadingService.hide();
@@ -334,15 +335,14 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     $scope.getOrganisationsByTaxonomy = function(selectedTerm) {
         LoadingService.run();
         
+        $scope.organisationsByTaxonomy = [];
+        
         $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_term?parameters[name]=' + selectedTerm + '&pagesize=1&access_token=' + service.accessToken + '')
         .success(function(data) {
             $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1000&parameters[' + $scope.data.selectedType + '][id]=' + data[0].tid + '&access_token=' + service.accessToken + '')
             .success(function(data) {
-                $scope.organisationsByTaxonomy = [];
                 angular.forEach(data, function(item) {
-                    $scope.organisationsByTaxonomy.push({
-                        title: item.label
-                    });
+                    $scope.organisationsByTaxonomy.push(item.label);
                 });
                 
                 LoadingService.hide();
@@ -360,52 +360,60 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
 app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup, service, ShowAlertService, LoadingService) {
     
     $scope.getOrganisationsNearMe = function(noOfMiles) {
-        LoadingService.run();
         
-        function success(pos) {
-            $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?fields=label,geolocation&pagesize=1000&access_token=' + service.accessToken + '')
-            .success(function(data) {
-                $scope.organisationsNearMe = [];
-                angular.forEach(data, function(item) {
-                    if (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude), 
-                        new google.maps.LatLng(item.geolocation.lat, item.geolocation.lon)) < (noOfMiles * 1609.344)) {
-                            $scope.organisationsNearMe.push({
-                                title: item.label
-                            });
+        if (navigator.geolocation) {
+            LoadingService.run();
+            
+            function success(pos) {
+                $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?fields=label,geolocation&pagesize=1000&access_token=' + service.accessToken + '')
+                .success(function(data) {
+                    $scope.organisationsNearMe = [];
+                    angular.forEach(data, function(item) {
+                        if (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude), 
+                            new google.maps.LatLng(item.geolocation.lat, item.geolocation.lon)) < (noOfMiles * 1609.344)) {
+                                $scope.organisationsNearMe.push(item.label);
+                        }
+                    });
+                    
+                    LoadingService.hide();
+                }).error(function(error) {
+                    LoadingService.hide();
+                    
+                    if (service.accessToken == undefined) {
+                        var errorObj = {
+                                "title": "Error!",
+                                "message": "Make sure you have authorised yourself first."
+                        }
+                            
+                        ShowAlertService.run(errorObj);
                     }
                 });
-                
-                LoadingService.hide();
-            }).error(function(error) {
-                LoadingService.hide();
-                
-                if (service.accessToken == undefined) {
-                    var errorObj = {
-                            "title": "Error!",
-                            "message": "Make sure you have authorised yourself first."
-                    }
-                        
-                    ShowAlertService.run(errorObj);
-                }
-            });
-        };
+            };
 
-        function error(err) {
-            LoadingService.hide();
+            function error(err) {
+                LoadingService.hide();
+                
+                var errorObj = {
+                    "title": "Error!",
+                    "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on, and you have a stable internet connection."
+                }
+                ShowAlertService.run(errorObj);
+            };
+
+            var options = {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: Infinity
+            };
             
+            navigator.geolocation.getCurrentPosition(success, error, options);
+        }
+        else {
             var errorObj = {
                 "title": "Error!",
-                "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on."
+                "message": "Geolocation is not supported by this browser/device."
             }
             ShowAlertService.run(errorObj);
-        };
-
-        var options = {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 10000
-        };
-        
-        navigator.geolocation.getCurrentPosition(success, error, options);
+        }
     }
 })

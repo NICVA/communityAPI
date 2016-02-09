@@ -28,8 +28,8 @@
     <script src='lib/angular-simple-logger.js'></script>
     <script src='lib/angular-google-maps/dist/angular-google-maps.js'></script>
     
-    <script src='lib/MooTools-Core-1.6.0.js'></script>
-    <script src='lib/String.levenshtein.js'></script>
+    <!--<script src='lib/MooTools-Core-1.6.0.js'></script>
+    <script src='lib/String.levenshtein.js'></script>-->
 </head>
 
 <body ng-app="starter">
@@ -118,7 +118,7 @@
             <div ng-controller="GetOrganisationsCtrl" style="width: 80%; margin: auto;" class="padding">
                 <div class="card">
                     <div class="item item-text-wrap">
-                        Enter the number of organisations you wish to retrieve.
+                        Enter the number of organisations you wish to retrieve
                     </div>
                 </div>
                 
@@ -156,19 +156,18 @@
                 <div class="item item-divider">
                     Taxonomy types
                 </div>
-                <ion-radio ng-repeat="item in taxonomyTypes"
+                <ion-radio name="taxonomyTypesRadioBtns" ng-repeat="item in taxonomyTypes"
                         ng-value="item.value"
                         ng-model="data.selectedType"
                         ng-click="getTaxonomyTerms(data.selectedType)">
-                        {{ item.text }}
+                        {{item.text}}
                 </ion-radio>
                 
-                <div style="padding-top: 20px;">
-                    <ion-radio ng-repeat="term in taxonomyTerms"
-                            ng-value="term.title"
-                            
-                            ng-click="getOrganisationsByTaxonomy(this.term.title)">
-                            {{ term.title }}
+                <div style="padding-top: 40px;">
+                    <ion-radio name="taxonomyTermsRadioBtns" class="item-text-wrap" ng-repeat="term in taxonomyTerms"
+                            ng-value="term"
+                            ng-click="getOrganisationsByTaxonomy(this.term)">
+                            {{term}}
                     </ion-radio>
                 </div>
                 
@@ -176,8 +175,8 @@
                 
                 <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
                     <ion-list>
-                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisationsByTaxonomy" ng-click="getOrganisation(organisation.title)">
-                            {{organisation.title}}
+                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisationsByTaxonomy" ng-click="getOrganisation(organisation)">
+                            {{organisation}}
                         </ion-item>
                     </ion-list>
                 </div>
@@ -190,7 +189,7 @@
             <div ng-controller="GetOrganisationsNearMeCtrl" style="width: 80%; margin: auto;" class="padding">
                 <div class="card">
                     <div class="item item-text-wrap">
-                        Enter a proximity (in miles).
+                        Enter a proximity (in miles)
                     </div>
                 </div>
 
@@ -209,8 +208,8 @@
                 
                 <div style="padding-top: 20px; padding-bottom: 20px;" ng-controller="GetOrganisationCtrl">
                     <ion-list>
-                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisationsNearMe" ng-click="getOrganisation(organisation.title)">
-                            {{organisation.title}}
+                        <ion-item class="item-text-wrap" ng-repeat="organisation in organisationsNearMe" ng-click="getOrganisation(organisation)">
+                            {{organisation}}
                         </ion-item>
                     </ion-list>
                 </div>
