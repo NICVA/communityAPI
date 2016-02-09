@@ -149,34 +149,27 @@
             <div ng-controller="GetOrganisationsByTaxonomyCtrl" style="width: 80%; margin: auto;" class="padding">
                 <div class="card">
                     <div class="item item-text-wrap">
-                        Select a taxonomy type, then enter a search term.
+                        Select a taxonomy type, then select the taxonomy term
                     </div>
                 </div>
 
                 <div class="item item-divider">
-                    Select the taxonomy type
+                    Taxonomy types
                 </div>
                 <ion-radio ng-repeat="item in taxonomyTypes"
                         ng-value="item.value"
-                        ng-model="data.selectedType">
+                        ng-model="data.selectedType"
+                        ng-click="getTaxonomyTerms(data.selectedType)">
                         {{ item.text }}
                 </ion-radio>
-
-                <div class="list" style="margin-top: 20px;">
-                    <div class="item item-input-inset">
-                        <label class="item-input-wrapper" style="background: white;">
-                            <input type="text" placeholder='E.g., "Abbey"' ng-model="taxonomyTerm">
-                        </label>
-                        <button class="button button-small button-positive" style="padding: 3px 10px 3px 10px;" ng-click="getOrganisationsByTaxonomy(taxonomyTerm, data.selectedType)">
-                            <i class="icon ion-ios-arrow-right"></i> Submit
-                        </button>
-                    </div>
-                </div>
                 
-                <div class="card getOrganisationByTaxnomyNotFound" style="display: none;">
-                    <div class="item item-text-wrap" style="background-color: #a94442; color: white">
-                        <i class="icon ion-close-circled"></i> Term in this taxonomy type not found!
-                    </div>
+                <div style="padding-top: 20px;">
+                    <ion-radio ng-repeat="term in taxonomyTerms"
+                            ng-value="term.title"
+                            
+                            ng-click="getOrganisationsByTaxonomy(this.term.title)">
+                            {{ term.title }}
+                    </ion-radio>
                 </div>
                 
                 <div class="line-separator"></div>

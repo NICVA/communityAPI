@@ -3,11 +3,11 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-var app = angular.module('starter', ['ionic', 'uiGmapgoogle-maps'])
+var app = angular.module('starter', ['ionic', 'uiGmapgoogle-maps']);
 
 app.config(function($ionicConfigProvider) {
   $ionicConfigProvider.navBar.alignTitle('center');
-});
+})
 
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -37,7 +37,7 @@ app.service('GetResourceService', function($http, service) {
     this.getData = function(uri) {
       return $http.get(uri + '?access_token=' + service.accessToken + '');
     };
-});
+})
 
 app.service('ShowAlertService', function($ionicPopup) {
     this.run = function(parameter) {
@@ -46,7 +46,7 @@ app.service('ShowAlertService', function($ionicPopup) {
             template: parameter.message
         });
     };
-});
+})
 
 app.service('LoadingService', function($ionicLoading) {
     this.run = function() {
@@ -62,7 +62,7 @@ app.service('LoadingService', function($ionicLoading) {
     this.hide = function() {
         $ionicLoading.hide();
     }
-});
+})
 
 /* Controllers */
 
@@ -276,11 +276,11 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
   }
 })
 
-app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service, LoadingService, ShowAlertService) {
+app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service, LoadingService, ShowAlertService, $httpParamSerializerJQLike) {
     $scope.taxonomyTypes = [
         { text: "Council", value: "council" },
         { text: "Constituency", value: "constituency" },
-        { text: "Electoral Area", value: "electoral_area" },
+        { text: "Electoral Area", value: "electoral area" },
         { text: "Ward", value: "ward" }
     ];
 
@@ -288,25 +288,34 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
         selectedType: ''
     };
     
-    $scope.getOrganisationsByTaxonomy = function(taxonomyTerm, taxonomyType) {
-        angular.element(document.querySelector(".getOrganisationByTaxnomyNotFound")).css("display", "none");
+    $scope.getTaxonomyTerms = function(selectedType) {
         LoadingService.run();
         
-        $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_term?parameters[name]=' + taxonomyTerm + '&pagesize=1&access_token=' + service.accessToken + '')
+        $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_type?parameters[name]=' + selectedType + '&fields=vid&access_token=' + service.accessToken + '')
         .success(function(data) {
-            $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1000&parameters[' + taxonomyType + '][id]=' + data[0].tid + '&access_token=' + service.accessToken + '')
+            var postData = $httpParamSerializerJQLike({
+                vid: data[0].vid
+            });
+            
+            var config = {
+                headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+            
+            $http.post('http://dev-d7nicva-api.pantheon.io/api/taxonomy_type/getTree?access_token=' + service.accessToken + '', postData, config)
             .success(function(data) {
-                $scope.organisationsByTaxonomy = [];
+                $scope.taxonomyTerms = [];
                 angular.forEach(data, function(item) {
-                    $scope.organisationsByTaxonomy.push({
-                        title: item.label
+                    $scope.taxonomyTerms.push({
+                        title: item.name
                     });
                 });
                 
                 LoadingService.hide();
             }).error(function() {
                 LoadingService.hide();
-                angular.element(document.querySelector(".getOrganisationByTaxnomyNotFound")).css("display", "block");
+                
             });
         }).error(function(error) {
             LoadingService.hide();
@@ -319,9 +328,31 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
                     
                 ShowAlertService.run(errorObj);
             }
-            else {
-                angular.element(document.querySelector(".getOrganisationByTaxnomyNotFound")).css("display", "block");
-            }
+        });
+    }
+        
+    $scope.getOrganisationsByTaxonomy = function(selectedTerm) {
+        LoadingService.run();
+        
+        $http.get('http://dev-d7nicva-api.pantheon.io/api/taxonomy_term?parameters[name]=' + selectedTerm + '&pagesize=1&access_token=' + service.accessToken + '')
+        .success(function(data) {
+            $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?pagesize=1000&parameters[' + $scope.data.selectedType + '][id]=' + data[0].tid + '&access_token=' + service.accessToken + '')
+            .success(function(data) {
+                $scope.organisationsByTaxonomy = [];
+                angular.forEach(data, function(item) {
+                    $scope.organisationsByTaxonomy.push({
+                        title: item.label
+                    });
+                });
+                
+                LoadingService.hide();
+            }).error(function() {
+                LoadingService.hide();
+
+            });
+        }).error(function(error) {
+            LoadingService.hide();
+            
         });
     }
 })
@@ -370,8 +401,9 @@ app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup
         };
 
         var options = {
-            enableHighAccuracy: true,
-            timeout: 5000
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 10000
         };
         
         navigator.geolocation.getCurrentPosition(success, error, options);
