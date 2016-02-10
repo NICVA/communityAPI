@@ -1,3 +1,3 @@
 # CommunityAPI
 
-An Ionic project for testing the CommunityAPI REST API.
+An Ionic project used for consuming the CommunityAPI REST API.
