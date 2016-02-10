@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <widget id="com.ionicframework.myapp474184" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-  <name>LOCIID App</name>
+  <name>CommunityAPI</name>
   <description>
-        An Ionic project for testing the LOCIID REST API
+        An Ionic project for testing the CommunityAPI REST API
     </description>
   <author href="http://www.kainos.com/">
       Matthew O'Reilly

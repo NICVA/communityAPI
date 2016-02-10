@@ -1,3 +1,3 @@
-# LOCIID App
+# CommunityAPI
 
-An Ionic project for testing the LOCIID REST API.
+An Ionic project for testing the CommunityAPI REST API.

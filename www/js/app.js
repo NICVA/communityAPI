@@ -174,6 +174,7 @@ app.controller('GetOrganisationCtrl', function($scope, $http, service, $ionicMod
     $scope.closeModal = function() {
         $scope.modal.hide();
         $scope.orgImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+        $scope.orgTwitter = '';
     };
         
     // Cleanup the modal when we're done with it!

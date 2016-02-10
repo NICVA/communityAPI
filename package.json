@@ -1,7 +1,7 @@
 {
-  "name": "LOCIID App",
+  "name": "CommunityAPI",
   "version": "1.1.1",
-  "description": "An Ionic project for testing the LOCIID REST API",
+  "description": "An Ionic project for testing the CommunityAPI REST API",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^2.0.4",
