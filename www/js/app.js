@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-var app = angular.module('starter', ['ionic', 'uiGmapgoogle-maps']);
+var app = angular.module('starter', ['ionic', 'uiGmapgoogle-maps', 'ngCordova']);
 
 app.config(function($ionicConfigProvider) {
   $ionicConfigProvider.navBar.alignTitle('center');
@@ -358,63 +358,49 @@ app.controller('GetOrganisationsByTaxonomyCtrl', function($scope, $http, service
     }
 })
 
-app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup, service, ShowAlertService, LoadingService) {
+app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup, service, ShowAlertService, LoadingService, $cordovaGeolocation, $ionicPlatform) {
     
     $scope.getOrganisationsNearMe = function(noOfMiles) {
+        $scope.organisationsNearMe = [];
+        LoadingService.run();
         
-        if (navigator.geolocation) {
-            LoadingService.run();
-            
-            function success(pos) {
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: Infinity
+        };
+        
+        $ionicPlatform.ready(function() {
+            $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
                 $http.get('http://dev-d7nicva-api.pantheon.io/api/organisation?fields=label,geolocation&pagesize=1000&access_token=' + service.accessToken + '')
                 .success(function(data) {
-                    $scope.organisationsNearMe = [];
                     angular.forEach(data, function(item) {
-                        if (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude), 
+                        if (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
                             new google.maps.LatLng(item.geolocation.lat, item.geolocation.lon)) < (noOfMiles * 1609.344)) {
                                 $scope.organisationsNearMe.push(item.label);
                         }
                     });
                     
                     LoadingService.hide();
-                }).error(function(error) {
-                    LoadingService.hide();
-                    
-                    if (service.accessToken == undefined) {
-                        var errorObj = {
-                                "title": "Error!",
-                                "message": "Make sure you have authorised yourself first."
-                        }
-                            
-                        ShowAlertService.run(errorObj);
-                    }
-                });
-            };
-
-            function error(err) {
+                })
+            }, function(err) {
                 LoadingService.hide();
                 
-                var errorObj = {
-                    "title": "Error!",
-                    "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on, and you have a stable internet connection."
+                if (service.accessToken == undefined) {
+                    var errorObj = {
+                            "title": "Error!",
+                            "message": "Make sure you have authorised yourself first."
+                    }
                 }
+                else {
+                    var errorObj = {
+                        "title": "Error!",
+                        "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on, and you have a stable internet connection."
+                    }
+                }
+                
                 ShowAlertService.run(errorObj);
-            };
-
-            var options = {
-                enableHighAccuracy: true,
-                timeout: 30000,
-                maximumAge: Infinity
-            };
-            
-            navigator.geolocation.getCurrentPosition(success, error, options);
-        }
-        else {
-            var errorObj = {
-                "title": "Error!",
-                "message": "Geolocation is not supported by this browser/device."
-            }
-            ShowAlertService.run(errorObj);
-        }
+            });
+        });
     }
 })
