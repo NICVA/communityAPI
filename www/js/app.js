@@ -105,6 +105,7 @@ app.controller('AuthoriseCtrl', function($scope, $http, service) {
 app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAlertService, LoadingService, $ionicLoading) {
   
   $scope.getOrganisations = function(numOfOrgs) {
+    $scope.organisations = [];
     LoadingService.run();
     
     $http({
@@ -114,7 +115,6 @@ app.controller('GetOrganisationsCtrl', function($scope, $http, service, ShowAler
                 'Content-Type': 'application/json' // $http defaults the Content-Type to JSON, so this header isn't necessarily required.
             }
     }).then(function successCallback(response) {
-        $scope.organisations = [];
         angular.forEach(response.data, function(item) {
             $scope.organisations.push({
                 title: item.label
@@ -382,21 +382,24 @@ app.controller('GetOrganisationsNearMeCtrl', function($scope, $http, $ionicPopup
                     });
                     
                     LoadingService.hide();
-                })
+                }).error(function(error) {
+                    LoadingService.hide();
+                    
+                    if (service.accessToken == undefined) {
+                        var errorObj = {
+                                "title": "Error!",
+                                "message": "Make sure you have authorised yourself first."
+                        }
+                            
+                        ShowAlertService.run(errorObj);
+                    }
+                });
             }, function(err) {
                 LoadingService.hide();
                 
-                if (service.accessToken == undefined) {
-                    var errorObj = {
-                            "title": "Error!",
-                            "message": "Make sure you have authorised yourself first."
-                    }
-                }
-                else {
-                    var errorObj = {
-                        "title": "Error!",
-                        "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on, and you have a stable internet connection."
-                    }
+                var errorObj = {
+                    "title": "Error!",
+                    "message": "(Error Code " + err.code + "): " + err.message + ". Make sure your location services are switched on, and you have a stable internet connection."
                 }
                 
                 ShowAlertService.run(errorObj);
