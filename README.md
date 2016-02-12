@@ -4,7 +4,7 @@ An Ionic project used for consuming the CommunityAPI REST API.
 
 # How to run
 
-Getting Started with Ionic: http://ionicframework.com/getting-started/ (For reference)
+> Getting Started with Ionic: http://ionicframework.com/getting-started/ (For reference)
 
 1. Install Node.js v4: https://nodejs.org/en/ (Node v5 does not work at the moment!).
 2. Install the latest Cordova and Ionic command-line tools (https://www.npmjs.com/package/ionic) by running this on the command line: `npm install -g cordova ionic`
