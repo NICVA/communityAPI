@@ -13,5 +13,5 @@ Getting Started with Ionic: http://ionicframework.com/getting-started/ (For refe
 ```
 ionic build android
 ionic emulate android (or ionic serve to start a local development server to test and run your app in a browser)
-(To build the app for iOS, run "ionic platform add ios" and substitute "android" with "ios" in the commands above.)
+(To build the app for iOS, run "ionic platform add ios" and substitute "android" with "ios" in the commands above)
 ```
