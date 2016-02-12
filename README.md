@@ -11,8 +11,8 @@ An Ionic project used for consuming the CommunityAPI REST API.
 3. Follow the Android (http://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html) or iOS (http://cordova.apache.org/docs/en/latest/guide/platforms/ios/index.html) platform guides to install required platform dependencies.
 4. Navigate to the root of the project, and use the Ionic tool to build and run the app, using the commands below:
 
-`ionic build android`
+  `ionic build android`
 
-`ionic emulate android` (or `ionic serve` to start a local development server to test and run your app in a browser)
+  `ionic emulate android` (or `ionic serve` to start a local development server to test and run your app in a browser)
 
-(To build the app for iOS, run `ionic platform add ios` and substitute "android" with "ios" in the commands above)
+  (To build the app for iOS, run `ionic platform add ios` and substitute "android" with "ios" in the commands above)
