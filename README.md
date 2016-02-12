@@ -16,3 +16,5 @@ An Ionic project used for consuming the CommunityAPI REST API.
   `ionic emulate android` (or `ionic serve` to start a local development server to test and run your app in a browser)
 
   (To build the app for iOS, run `ionic platform add ios` and substitute "android" with "ios" in the commands above)
+
+##### For more information, visit http://ionicframework.com/docs/
